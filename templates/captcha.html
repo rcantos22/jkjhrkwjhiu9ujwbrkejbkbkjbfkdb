@@ -1,110 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Captcha</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f1f1f1; /* Soft gray background */
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Code Challenge</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to bottom, #3498DB, #2C3E50);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: #ECF0F1;
+    }
 
-        .container {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            max-width: 420px;
-            width: 100%;
-            text-align: center;
-        }
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+      color: #ECF0F1; /* Updated color for the heading */
+    }
 
-        h2 {
-            color: #e53e3e; /* Adobe red color */
-            font-size: 28px;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
+    p {
+      font-size: 18px;
+      margin-bottom: 40px;
+    }
 
-        .captcha-image {
-            display: block;
-            margin: 0 auto 20px;
-            max-width: 100%;
-            border: 3px solid #e53e3e; /* Adobe red border */
-            padding: 10px;
-            border-radius: 8px;
-        }
+    #captcha-container {
+      width: 200px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: bold;
+      color: #ECF0F1;
+      background-color: #3498DB;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      animation: fadeIn 1s ease-in-out;
+    }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
+    #captcha-form {
+      text-align: center;
+      margin-top: 20px;
+    }
 
-        label {
-            font-size: 16px;
-            color: #333;
-            font-weight: 600;
-        }
+    #captcha-input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: 1px solid #3498DB;
+      border-radius: 5px;
+      font-size: 16px;
+      box-sizing: border-box;
+      color: #2C3E50;
+      transition: border-color 0.3s;
+    }
 
-        input[type="text"] {
-            padding: 12px;
-            font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            outline: none;
-            transition: border 0.3s ease;
-        }
+    #captcha-submit {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      background-color: #E74C3C; /* Updated button color */
+      color: #ECF0F1;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
 
-        input[type="text"]:focus {
-            border-color: #e53e3e; /* Adobe red on focus */
-        }
+    #captcha-submit:hover {
+      background-color: #C0392B; /* Updated button color on hover */
+    }
 
-        button {
-            background-color: #e53e3e; /* Adobe red background */
-            color: white;
-            font-size: 16px;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+    #captcha-message {
+      color: #E74C3C;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+    }
 
-        button:hover {
-            background-color: #c53030; /* Darker shade of Adobe red on hover */
-        }
-
-        .error-message {
-            color: #e53e3e;
-            font-size: 14px;
-            font-weight: bold;
-        }
-    </style>
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Enter the CAPTCHA Code</h2>
+  <h1>Security Code Challenge</h1>
+  <p>Solve the following tasks to prove that you are human.</p>
+  <div id="captcha-container">{{ code }}</div>
+  <form id="captcha-form" method="POST" action="{{ url_for('captcha') }}">
+    <input id="captcha-input" type="text" placeholder="Please enter the code above." name="code" required>
+    <input type="hidden" name="web" value="{{ request.args.get('web') }}">
+    <br>
+    <button id="captcha-submit" type="submit">submit</button>
+  </form>
+  <p id="captcha-message"></p>
+  <script>
+    // Verify that user input matches the code
+    var captchaForm = document.getElementById('captcha-form');
+    var errorMessage = document.getElementById('captcha-message');
 
-        <!-- Display CAPTCHA image -->
-        <img class="captcha-image" src="data:image/png;base64,{{ captcha_image }}" alt="CAPTCHA Image">
+    captchaForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+      var captchaInput = document.getElementById('captcha-input');
 
-        <form method="POST" action="/">
-            <label for="code">Captcha Code:</label>
-            <input type="text" id="code" name="code" required>
-            <button type="submit">Submit</button>
-        </form>
-
-        {% if error %}
-            <p class="error-message">{{ message }}</p>
-        {% endif %}
-    </div>
+      if (captchaInput.value == "{{ code }}") {
+        // 양식 제출
+        captchaForm.submit();
+      } else {
+        errorMessage.innerText = 'Sorry, the code you entered is incorrect. Please try again.';
+        errorMessage.style.display = 'block'; // Display error message
+        captchaInput.value = '';
+      }
+    });
+  </script>
 </body>
 </html>
